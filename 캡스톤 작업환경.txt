@@ -1,0 +1,18 @@
+pip3 install tensorflow
+
+conda install tensorflow
+
+pip3 install imutils
+
+pip3 install opencv-python
+
+pip3 install tensorflow-gpu
+
+tensorflow_gpu-2.1.0   7.6  10.1
+
+$ conda remove force scipy, numpy 
+$ pip3 install scipy 
+$ pip3 install numpy
+
+
+python 파일이름.py -d 데이터셋 파일 디렉토리
