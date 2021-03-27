@@ -16,7 +16,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-args = {'dataset': 'C:/Users/ggb04/Desktop/dataset', 'plot': "plot.png", 'model': 'mask_detector.model','plot2':"plot2.png"}
+args = {'dataset': 'C:/Users/BBAEK/Desktop/datasets', 'plot': "plot.png", 'model': 'mask_detector.model','plot2':"plot2.png"}
+#'C:/Users/ggb04/Desktop/dataset'
 
 print("[info] Loading images")
 images = list(paths.list_images(args["dataset"]))
@@ -67,22 +68,20 @@ for layer in baseModel.layers:
 	layer.trainable = False
 
 INIT_LR = 1e-4
-EPOCHS = 10
+EPOCHS = 100
 BS = 16
 
 callback_list = [
     EarlyStopping(
-        monitor='val_acc',
-        patience = 1,
-        
+        monitor='val_accuracy',
+        patience = 2,
     ),
     ModelCheckpoint(
-        filepath='mask_decter.h5',
+        filepath='mask_detector.h5',
         monitor = 'val_loss',
         save_best_only=True,
     )
 ]
-
 
 print("[info] compiling model")
 opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
@@ -96,7 +95,7 @@ H = model.fit(
 	validation_data=(testX, testY),
 	validation_steps=len(testX) // BS,
 	epochs=EPOCHS,
-        callbacks = callback_list
+    callbacks = callback_list
 	)
 
 print("[info] middle result")
@@ -108,7 +107,7 @@ with open("middle.txt", 'w') as middleFile:
 	middleFile.write(classification_report(testY.argmax(axis=1), predIdxs,
 	target_names= LB.classes_))
 
-N = EPOCHS
+N = len(H.history["loss"])
 plt.style.use("ggplot")
 plt.figure()
 plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
@@ -146,7 +145,7 @@ H = model.fit(
 	validation_data=(testX, testY),
 	validation_steps=len(testX) // BS,
 	epochs = total_epochs,
-        callbacks = callback_list
+    callbacks = callback_list
 	)
 
 print("[info] finally result")
@@ -160,7 +159,7 @@ with open("final.txt", 'w') as finalFile:
 	finalFile.write(classification_report(testY.argmax(axis=1), predIdxs,
 	target_names= LB.classes_))
 
-N = total_epochs
+N = len(H.history["loss"])
 plt.style.use("ggplot")
 plt.figure()
 plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
