@@ -11,10 +11,12 @@ from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from imutils import paths
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint 
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-args = {'dataset': 'C:/Users/BBAEK/Desktop/datasets', 'plot': "plot.png", 'model': 'mask_detector.model','plot2':"plot2.png"}
+
+args = {'dataset': 'C:/Users/ggb04/Desktop/dataset', 'plot': "plot.png", 'model': 'mask_detector.model','plot2':"plot2.png"}
 
 print("[info] Loading images")
 images = list(paths.list_images(args["dataset"]))
@@ -68,17 +70,33 @@ INIT_LR = 1e-4
 EPOCHS = 10
 BS = 16
 
+callback_list = [
+    EarlyStopping(
+        monitor='val_acc',
+        patience = 1,
+        
+    ),
+    ModelCheckpoint(
+        filepath='mask_decter.h5',
+        monitor = 'val_loss',
+        save_best_only=True,
+    )
+]
+
+
 print("[info] compiling model")
 opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 model.compile(loss="binary_crossentropy", optimizer=opt,
 	metrics=["accuracy"])
+
 
 H = model.fit(
 	aug.flow(trainX, trainY, batch_size=BS),
 	steps_per_epoch=len(trainX) // BS,
 	validation_data=(testX, testY),
 	validation_steps=len(testX) // BS,
-	epochs=EPOCHS
+	epochs=EPOCHS,
+        callbacks = callback_list
 	)
 
 print("[info] middle result")
@@ -127,7 +145,8 @@ H = model.fit(
 	steps_per_epoch=len(trainX) // BS,
 	validation_data=(testX, testY),
 	validation_steps=len(testX) // BS,
-	epochs = total_epochs
+	epochs = total_epochs,
+        callbacks = callback_list
 	)
 
 print("[info] finally result")
