@@ -14,9 +14,9 @@ from imutils import paths
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-args = {'dataset': 'C:/Users/ggb04/Desktop/dataset', 'plot': "plot.png", 'model': 'mask_detector.model','plot2':"plot2.png"}
+args = {'dataset': 'C:/Users/BBAEK/Desktop/datasets', 'plot': "plot.png", 'model': 'mask_detector.model','plot2':"plot2.png"}
 
-print("---Loading images---")
+print("[info] Loading images")
 images = list(paths.list_images(args["dataset"]))
 tr_data = []
 tr_labels = []
@@ -32,7 +32,8 @@ for img in images:
 tr_data = np.array(tr_data, dtype="float32")
 tr_labels = np.array(tr_labels)
 
-tr_labels = LabelBinarizer().fit_transform(tr_labels)
+LB = LabelBinarizer()
+tr_labels = LB.fit_transform(tr_labels)
 tr_labels = to_categorical(tr_labels)
 
 (trainX, testX, trainY, testY) = train_test_split(tr_data, tr_labels,
@@ -49,10 +50,10 @@ aug = ImageDataGenerator(
 
 
 baseModel = MobileNetV2(weights="imagenet", include_top=False,
-	input_tensor=Input(shape=(224, 224, 3)))
+	input_shape=(224,224,3))
+	#input_tensor=Input(shape=(224, 224, 3))
 
 headModel = baseModel.output
-#headModel = AveragePooling2D(pool_size=(7, 7))(headModel)
 headModel = GlobalAveragePooling2D()(headModel)
 headModel = Dense(128, activation="relu")(headModel)
 headModel = Dropout(0.5)(headModel)
@@ -67,12 +68,11 @@ INIT_LR = 1e-4
 EPOCHS = 10
 BS = 16
 
-print("[INFO] compiling model...")
+print("[info] compiling model")
 opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 model.compile(loss="binary_crossentropy", optimizer=opt,
 	metrics=["accuracy"])
 
-print("[INFO] training head...")
 H = model.fit(
 	aug.flow(trainX, trainY, batch_size=BS),
 	steps_per_epoch=len(trainX) // BS,
@@ -81,11 +81,14 @@ H = model.fit(
 	epochs=EPOCHS
 	)
 
-print("[INFO] evaluating network...")
+print("[info] middle result")
 predIdxs = model.predict(testX, batch_size=BS)
 predIdxs = np.argmax(predIdxs, axis=1)
 print(classification_report(testY.argmax(axis=1), predIdxs,
-	target_names= LabelBinarizer().classes_))
+	target_names= LB.classes_))
+with open("middle.txt", 'w') as middleFile:
+	middleFile.write(classification_report(testY.argmax(axis=1), predIdxs,
+	target_names= LB.classes_))
 
 N = EPOCHS
 plt.style.use("ggplot")
@@ -94,14 +97,14 @@ plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
 plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
 plt.plot(np.arange(0, N), H.history["accuracy"], label="train_acc")
 plt.plot(np.arange(0, N), H.history["val_accuracy"], label="val_acc")
-plt.title("Training Loss and Accuracy")
-plt.xlabel("Epoch #")
+plt.title("Middle Result")
+plt.xlabel("Epoch")
 plt.ylabel("Loss/Accuracy")
 plt.legend(loc="lower left")
 plt.savefig(args["plot"])
 
 #Fine-tuning
-
+print("[info] fine-tuning")
 baseModel.trainable = True
 
 for layer in baseModel.layers:
@@ -112,6 +115,7 @@ fine_tune_at = 100
 for layer in baseModel.layers[:fine_tune_at]:
 	layer.trainable = False
 
+print("[info] Re model compile")
 model.compile(loss="binary_crossentropy", optimizer=opt,
 	metrics=["accuracy"])
 
@@ -126,14 +130,16 @@ H = model.fit(
 	epochs = total_epochs
 	)
 
+print("[info] finally result")
 predIdxs = model.predict(testX, batch_size=BS)
 predIdxs = np.argmax(predIdxs, axis=1)
 print(classification_report(testY.argmax(axis=1), predIdxs,
-	target_names= LabelBinarizer().classes_))
+	target_names= LB.classes_))
 print("[INFO] saving mask detector model...")
 model.save(args["model"], save_format="h5")
-
-
+with open("final.txt", 'w') as finalFile:
+	finalFile.write(classification_report(testY.argmax(axis=1), predIdxs,
+	target_names= LB.classes_))
 
 N = total_epochs
 plt.style.use("ggplot")
@@ -142,8 +148,8 @@ plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
 plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
 plt.plot(np.arange(0, N), H.history["accuracy"], label="train_acc")
 plt.plot(np.arange(0, N), H.history["val_accuracy"], label="val_acc")
-plt.title("Training Loss and Accuracy")
-plt.xlabel("Epoch #")
+plt.title("Final Result")
+plt.xlabel("Epoch")
 plt.ylabel("Loss/Accuracy")
 plt.legend(loc="lower left")
 plt.savefig(args["plot2"])
