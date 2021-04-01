@@ -122,7 +122,6 @@ plt.savefig(args["plot"])
 
 #Fine-tuning
 print("[info] fine-tuning")
-baseModel.trainable = True
 
 for layer in baseModel.layers:
 	layer.trainable = True
@@ -133,6 +132,7 @@ for layer in baseModel.layers[:fine_tune_at]:
 	layer.trainable = False
 
 print("[info] Re model compile")
+opt = Adam(lr=INIT_LR/10, decay= (INIT_LR/10) / EPOCHS)
 model.compile(loss="binary_crossentropy", optimizer=opt,
 	metrics=["accuracy"])
 
