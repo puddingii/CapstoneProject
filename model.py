@@ -73,8 +73,8 @@ BS = 16
 
 callback_list = [
     EarlyStopping(
-        monitor='val_accuracy',
-        patience = 2,
+        monitor='val_loss',
+        patience = 3,
     ),
     ModelCheckpoint(
         filepath='mask_detector.h5',

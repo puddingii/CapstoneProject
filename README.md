@@ -1,2 +1,10 @@
 # Capstone_Project
  mask detection project
+
+데이터 셋 :
+https://github.com/cabani/MaskedFace-Net
+
+MobileNet V2
+
+https://www.tensorflow.org/tutorials/images/transfer_learning?hl=ko
+http://keras-ko.kr/api/applications/mobilenet/
