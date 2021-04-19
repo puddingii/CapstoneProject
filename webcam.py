@@ -62,7 +62,6 @@ def startMask():
 
     while True:
         frame = vs.read()
-        frame = frame[1] if args.get("video") else frame
         if frame is None:
             break
         frame = imutils.resize(frame, width=1000)
