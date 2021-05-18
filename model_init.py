@@ -26,7 +26,7 @@ def faceRecognitionModel(device):
     print("[info] loading face recognition model")
 
     checkpoint = torch.load(
-        'face_detector/model_resnet18_triplet_epoch_63.pt', map_location=device)
+        'face_detector/model_resnet18_triplet_epoch_92mask.pt', map_location=device)
     model = Resnet18Triplet(
         embedding_dimension=checkpoint['embedding_dimension'])
     model.load_state_dict(checkpoint['model_state_dict'])
