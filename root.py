@@ -14,9 +14,6 @@ def getModeValue(predList):
 
 
 if __name__ == '__main__':
-    # process_eval = multiprocessing.Process(target=startMaskDetection)
-    # process_eval.start()
-    # process_eval.join()
     startMaskDetection()
     cuda.select_device(0)
     cuda.close()
