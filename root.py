@@ -21,8 +21,8 @@ if __name__ == '__main__':
     predList = startFaceRecognition()
     torch.cuda.empty_cache()
 
-    memberText = "C:/Users/BBAEK/Desktop/capstone_1/front/frontProject/log/member.txt"
-    visitorText = "C:/Users/BBAEK/Desktop/capstone_1/front/frontProject/log/visitor.txt"
+    memberText = "./front/frontProject/log/member.txt"
+    visitorText = "./front/frontProject/log/visitor.txt"
     nowTime = time.strftime("%Y-%m-%d_%p%I:%M", time.localtime(time.time()))
 
     predName = getModeValue(predList)
